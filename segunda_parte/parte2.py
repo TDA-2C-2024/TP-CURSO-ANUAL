@@ -35,42 +35,51 @@ def obtener_cantidad_max(arr):
 
 
 def reconstruir_monedas(arr, dp):
-    i, j = 0, len(arr) - 1
-    monedas_sofia = []
-    monedas_mateo = []
+    n = len(arr)
+    i, j = 0, n - 1
+    camino_sofia = []
+    camino_mateo = []
 
     while i <= j:
-        # Turno de Sofía
-        if dp[i][j] == arr[i] + min(dp[i+2][j] if i + 2 <= j else 0,
-                                    dp[i+1][j - 1] if i + 1 <= j - 1 else 0):
-            monedas_sofia.append(arr[i])
-            # Mateo elige
-            if i + 1 <= j:
-                if arr[i + 1] > arr[j]:
-                    monedas_mateo.append(arr[i + 1])
-                    i += 2  # Avanzar después de que Mateo elija
-                else:
-                    monedas_mateo.append(arr[j])
-                    i += 1
-                    j -= 1
-            else:
-                i += 1
+        # Opción 1: Sofía toma arr[i]
+        if arr[i + 1] > arr[j]:
+            take_first = arr[i] + (dp[i + 2][j] if i + 2 <= j else 0)  # Mateo toma arr[i + 1]
         else:
-            monedas_sofia.append(arr[j])
-            # Mateo elige
-            if i <= j - 1:
+            take_first = arr[i] + (dp[i + 1][j - 1] if i + 1 <= j - 1 else 0)  # Mateo toma arr[j]
+
+        # Opción 2: Sofía toma arr[j]
+        if arr[i] > arr[j - 1]:
+            take_last = arr[j] + (dp[i + 1][j - 1] if i + 1 <= j - 1 else 0)  # Mateo toma arr[i]
+        else:
+            take_last = arr[j] + (dp[i][j - 2] if i <= j - 2 else 0)  # Mateo toma arr[j - 1]
+
+        # Sofía elige la mejor opción
+        if dp[i][j] == take_first:
+            camino_sofia.append(arr[i])  # Sofía toma la moneda de la izquierda
+            if i + 1 <= j:  # Verificar si hay una elección válida para Mateo
+                if arr[i + 1] > arr[j]:
+                    camino_mateo.append(arr[i + 1])
+                    i += 2  # Mateo toma arr[i + 1]
+                else:
+                    camino_mateo.append(arr[j])
+                    i += 1  # Mateo toma arr[j]
+                    j -= 1
+            else:
+                i += 1  # Sofía toma la última moneda
+        else:
+            camino_sofia.append(arr[j])  # Sofía toma la moneda de la derecha
+            if i <= j - 1:  # Verificar si hay una elección válida para Mateo
                 if arr[i] > arr[j - 1]:
-                    monedas_mateo.append(arr[i])
-                    i += 1
+                    camino_mateo.append(arr[i])
+                    i += 1  # Mateo toma arr[i]
                     j -= 1
                 else:
-                    monedas_mateo.append(arr[j - 1])
-                    j -= 2
+                    camino_mateo.append(arr[j - 1])
+                    j -= 2  # Mateo toma arr[j - 1]
             else:
-                j -= 1
+                j -= 1  # Sofía toma la última moneda
 
-    return monedas_sofia, monedas_mateo
-
+    return camino_sofia, camino_mateo
 
 
 def buscar_solucion_iterativa(arr, dp):
