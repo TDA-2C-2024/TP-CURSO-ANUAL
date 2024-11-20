@@ -17,11 +17,10 @@ def serializar_txt(nombre_txt):
 def agarrar_moneda(monedas, resultado, es_sophia):
     primera_moneda = monedas.popleft()
     ultima_moneda = monedas.pop()
-    
     if es_sophia: # Turno de Sophia, elije siempre la mayor
         if primera_moneda > ultima_moneda:
             resultado.append(primera_moneda_sophia) 
-            monedas.append(ultima_moneda)  
+            monedas.append(ultima_moneda)
         else:
             resultado.append(ultima_moneda_sophia)
             monedas.appendleft(primera_moneda)
@@ -49,7 +48,7 @@ def algoritmo_greedy(monedas):
     return resultado
 
 # Para ejecutar:
-# python3 primera_parte.py datos_test/20.txt (u otro txt) 
+# python3 primera_parte.py test_data/20.txt (u otro txt con el mismo formato) 
 if __name__ == "__main__":
 
     argumentos = sys.argv
