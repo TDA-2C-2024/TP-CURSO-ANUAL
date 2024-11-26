@@ -59,8 +59,4 @@ if __name__ == "__main__":
 
     resultado = algoritmo_greedy(monedas)
 
-    respuesta_final = ""
-    for rta in resultado:
-        respuesta_final += rta + "; "
-
-    print(respuesta_final[:-2])
+    print("; ".join(resultado))
