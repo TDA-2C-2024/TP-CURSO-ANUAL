@@ -163,6 +163,11 @@ def backtracking(filas, columnas, barcos):
 # Para correr el codigo, se debe pasar por parametro un .txt 
 # que tengo el mismo formato que los test de la catedra
 # Ejemplo: python3 tercera_parte.py test_data/3_3_2.txt (u otro .txt)
+#
+# Para correr los test de la catedra:
+# $ chmod +x run_test.sh
+# $ ./run_test.sh
+
 if __name__ == "__main__":
     argumentos = sys.argv
     if len(argumentos) != 2:
