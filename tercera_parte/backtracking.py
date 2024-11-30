@@ -55,10 +55,11 @@ def tratar_de_ubicar_barco(puestos, filas, columnas, barcos, barco_act, direccio
         puestos.add(barco)
         ubicaciones_barco(puestos, filas, columnas, barcos, barco_act+1, mejores_puestos)
         puestos.remove(barco)
-    return True
+        return True
+    else:
+        return False
 
 # Devuelve cuanta demanda cubri actualmente para una fila
-
 def demanda_por_fila(nro_fila, puestos):
     demanda_actual = 0
     for barco in puestos:
@@ -129,6 +130,9 @@ def ubicaciones_barco(puestos, filas, columnas, barcos, barco_act, mejores_puest
         for nro_columna, _ in ((columnas)).items():
             if tratar_de_ubicar_barco(puestos, filas, columnas, barcos, barco_act, 'vertical', nro_fila, nro_columna, mejores_puestos):
                 se_pudo_colocar = True
+            # Para barcos de largo 1, basta con colocarlo horizontal o vertical
+            if barcos[barco_act][1] == 1:
+                continue
             if tratar_de_ubicar_barco(puestos, filas, columnas, barcos, barco_act, 'horizontal', nro_fila, nro_columna, mejores_puestos):
                 se_pudo_colocar = True
     
@@ -162,11 +166,11 @@ def backtracking(filas, columnas, barcos):
 
 # Para correr el codigo, se debe pasar por parametro un .txt 
 # que tengo el mismo formato que los test de la catedra
-# Ejemplo: python3 tercera_parte.py test_data/3_3_2.txt (u otro .txt)
+# Ejemplo: python3 backtracking.py test_data_bt/3_3_2.txt (u otro .txt con el mismo formato)
 #
 # Para correr los test de la catedra:
-# $ chmod +x run_test.sh
-# $ ./run_test.sh
+# $ chmod +x run_test_bt.sh
+# $ ./run_test_bt.sh
 
 if __name__ == "__main__":
     argumentos = sys.argv

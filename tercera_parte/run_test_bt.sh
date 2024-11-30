@@ -1,8 +1,7 @@
 #!/bin/bash
 
-test_data="test_data" 
-
-output="results/results_test.txt"
+test_data="test_data_bt"
+output="results/results_${test_data}_bt.txt"
 
 > "$output"
 
