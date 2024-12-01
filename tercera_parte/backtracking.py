@@ -122,46 +122,41 @@ def ubicaciones_barco(puestos, filas, columnas, barcos, barco_act, mejores_puest
         return
 
     se_pudo_colocar = False
-    for nro_fila, demanda_fila in ((filas)).items():
+    for n in range(len(filas)):
         # Salteo las filas con demanda 0 o las que tengan su demanda al maximo
-        if demanda_fila == 0 or demanda_por_fila(nro_fila, puestos) == demanda_fila:
+        if filas[n] == 0 or demanda_por_fila(n, puestos) == filas[n]:
             continue
 
-        for nro_columna, _ in ((columnas)).items():
-            if tratar_de_ubicar_barco(puestos, filas, columnas, barcos, barco_act, 'vertical', nro_fila, nro_columna, mejores_puestos):
+        for m in range(len(columnas)):
+            if tratar_de_ubicar_barco(puestos, filas, columnas, barcos, barco_act, 'vertical', n, m, mejores_puestos):
                 se_pudo_colocar = True
             # Para barcos de largo 1, basta con colocarlo horizontal o vertical
             if barcos[barco_act][1] == 1:
                 continue
-            if tratar_de_ubicar_barco(puestos, filas, columnas, barcos, barco_act, 'horizontal', nro_fila, nro_columna, mejores_puestos):
+            if tratar_de_ubicar_barco(puestos, filas, columnas, barcos, barco_act, 'horizontal', n, m, mejores_puestos):
                 se_pudo_colocar = True
     
+    
     # Si no pude colocar un barco de cierta longitud, no voy a poder colocar el siguiente si tiene la misma longitud
-    if barco_act > 0 and not se_pudo_colocar and barcos[barco_act-1][1] == barcos[barco_act][1]:
+    if not se_pudo_colocar and barco_act != len(barcos)-1:
+        barco_act += 1
         while barcos[barco_act-1][1] == barcos[barco_act][1]:
             barco_act += 1
             if barco_act == len(barcos):
-                # No hay mas barcos para poner
                 return
-            
+        barco_act -= 1
+    
     # No tengo en cuenta este barco (ya sea si lo pude colocar o n o), asi que sigo con el siguiente
     ubicaciones_barco(puestos, filas, columnas, barcos, barco_act+1, mejores_puestos)
     
 def backtracking(filas, columnas, barcos):
     mejores_puestos = [Barco(-1, set(), True)]
-    # Al final no mejora nada ordenando las filas por mayor demanda
-    dict_filas = {i: demanda for i, demanda in enumerate(filas)}
-    dict_filas_ordenado = dict(sorted(dict_filas.items(), key=lambda item: item[0], reverse=False))
-
-    # Al final no mejora nada ordenando las columnas por mayor demanda
-    dict_columnas = {i: demanda for i, demanda in enumerate(columnas)}
-    dict_columnas_ordenado = dict(sorted(dict_columnas.items(), key=lambda item: item[0], reverse=False))
 
     # Ordeno los barcos de mayor a menor longitud
     tuplas = [(i, largo) for i, largo in enumerate(barcos)]
     barcos_ordenados = sorted(tuplas, key=lambda x: x[1], reverse=True)
 
-    ubicaciones_barco(set(), dict_filas_ordenado, dict_columnas_ordenado, barcos_ordenados, 0, mejores_puestos)
+    ubicaciones_barco(set(), filas, columnas, barcos_ordenados, 0, mejores_puestos)
     return mejores_puestos, demanda(mejores_puestos, filas, columnas)
 
 # Para correr el codigo, se debe pasar por parametro un .txt 

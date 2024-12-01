@@ -53,12 +53,13 @@ def ubicaciones_barco(puestos, filas, columnas, barcos, barco_act, mejores_puest
                 se_pudo_colocar = True
     
     # Si no pude colocar un barco de cierta longitud, no voy a poder colocar el siguiente si tiene la misma longitud
-    if barco_act > 0 and not se_pudo_colocar and barcos[barco_act-1][1] == barcos[barco_act][1]:
+    if not se_pudo_colocar and barco_act != len(barcos)-1:
+        barco_act += 1
         while barcos[barco_act-1][1] == barcos[barco_act][1]:
             barco_act += 1
             if barco_act == len(barcos):
-                # No hay mas barcos para poner
                 return
+        barco_act -= 1
             
     # No tengo en cuenta este barco (ya sea si lo pude colocar o n o), asi que sigo con el siguiente
     ubicaciones_barco(puestos, filas, columnas, barcos, barco_act+1, mejores_puestos)
