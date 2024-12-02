@@ -1,4 +1,6 @@
 import math
+import ast
+import sys
 
 def calcular_modulo(pos1, pos2):
     return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)
@@ -41,18 +43,35 @@ def validador_eficiente(filas, columnas, barcos, solucion):
                 
     return True
 
-# Ejemplo
-filas = [2, 0, 2]
-columnas = [2, 0, 2]
-barcos = [1, 1, 1, 1]
-solucion = {}
-solucion[0] = set()
-solucion[0].add((0,0))
-solucion[1] = set()
-solucion[1].add((0,2))
-solucion[2] = set()
-solucion[2].add((2,0))
-solucion[3] = set()
-solucion[3].add((2, 2))
+def leer_archivo(archivo):
+    try:
+        with open(archivo, 'r') as f:
+            contenido = f.readlines()
+ 
+        contenido = [linea.strip() for linea in contenido if linea.strip() and not linea.strip().startswith('#')]
+    
+        filas = ast.literal_eval(contenido[0].split('=')[1].strip())
+        columnas = ast.literal_eval(contenido[1].split('=')[1].strip())
+        barcos = ast.literal_eval(contenido[2].split('=')[1].strip())
+        solucion = ast.literal_eval(contenido[3].split('=')[1].strip())
+        
+        return filas, columnas, barcos, solucion
+    
+    except Exception:
+        raise Exception("Hubo un error al leer el archivo. Verifique su formato y contenido.")
 
-print(validador_eficiente(filas, columnas, barcos, solucion)) # Devuelve True
+
+
+if __name__ == "__main__":
+    argumentos = sys.argv
+    if len(argumentos) != 2:
+        raise AssertionError("Error: se esperaba solo 2 argumentos")
+    
+    filas, columnas, barcos, solucion = leer_archivo(argumentos[1])
+    
+    es_valida = validador_eficiente(filas, columnas, barcos, solucion)
+    
+    if es_valida:
+        print("La solución es válida.")
+    else:
+        print("La solución no es válida.")

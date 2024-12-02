@@ -95,7 +95,7 @@ def demanda(puestos, filas, columnas):
 def demanda_barcos_faltantes(barcos, barco_act):
     demanda_faltante = 0
     for barco in barcos[barco_act:]:
-        demanda_faltante += barco[1] * 2
+        demanda_faltante += barco[1]
     return demanda_faltante
 
 # Ubica a los barcos tratando de minimizar la demanda incumplida, obteniendo asi un optimo

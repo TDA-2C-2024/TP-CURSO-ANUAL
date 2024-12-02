@@ -10,6 +10,10 @@ python3 primera_parte.py <ruta_del_archivo_txt>
 
 - **<ruta_del_archivo_txt>**: ruta del archivo .txt que contiene las monedas. El archivo debe estar en un formato igual a los ejemplos proporcionados por la cátedra.
 
+### Output
+
+El resultado de la ejecucion se muestra por consola.
+
 ## Con los tests
 Para ejecutar los tests proporcionados por la cátedra, debe poner en la consola:
 
@@ -17,7 +21,7 @@ Para ejecutar los tests proporcionados por la cátedra, debe poner en la consola
 chmod +x run_test_greedy.sh
 ./run_test_greedy.sh
 ```
-    
+### Output
 
 Los resultados se guardaran (de forma predeterminada) en la carpeta `results` dentro del archivo `results_test_data.txt`. 
 

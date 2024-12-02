@@ -1,0 +1,10 @@
+# Las demanda de cada fila debe estar en una lista, donde para fila 0, le corresponde demanda 2, y asi.
+# Las demanda de cada columna debe estar en una lista, donde para columna 0, le corresponde demanda 2, y asi.
+# Los barcos deben estar en una lista, donde la longitud para el barco 0 es 1, y asi.
+# La solucion debe estar en un diccionario, donde la clave es el numero de barco, y su valor una lista, donde 
+# guarda las posiciones que ocupa ese barco
+
+filas = [2, 0, 2]
+columnas = [2, 0, 2]
+barcos = [1, 1, 1, 1]
+solucion = {0: [(0, 0)], 1: [(0, 2)], 2: [(2, 0)], 3: [(2, 2)]}
