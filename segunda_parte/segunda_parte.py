@@ -30,112 +30,80 @@ ultima_moneda_mateo = "Mateo agarra la ultima (%d)"
 def obtener_cantidad_max(arr):
     n = len(arr)
     optimos = [[0] * n for _ in range(n)]  # Inicializo la matriz con 0's
-    solucion = buscar_solucion_iterativa(arr, optimos)
-    # print("Solucion: ", solucion)
-    # for fila in optimos:
-    #     print(fila)
+    buscar_solucion_iterativa(arr, optimos)
     return reconstruir_monedas(arr, optimos)
 
 
-def reconstruir_monedas(arr, dp):
+def buscar_solucion_iterativa(arr, optimos):
     n = len(arr)
-    i, j = 0, n - 1
-    camino_sofia = []
-    camino_mateo = []
-    resultado = []
 
-    while i <= j:
-        # Opción 1: Sofía toma arr[i]
-        if arr[i + 1] > arr[j]:
-            # Mateo toma arr[i + 1]
-            take_first = arr[i] + (dp[i + 2][j] if i + 2 <= j else 0)
-        else:
-            # Mateo toma arr[j]
-            take_first = arr[i] + (dp[i + 1][j - 1] if i + 1 <= j - 1 else 0)
-
-        # Opción 2: Sofía toma arr[j]
-        if arr[i] > arr[j - 1]:
-            take_last = arr[j] + (dp[i + 1][j - 1] if i +
-                                  1 <= j - 1 else 0)  # Mateo toma arr[i]
-        else:
-            # Mateo toma arr[j - 1]
-            take_last = arr[j] + (dp[i][j - 2] if i <= j - 2 else 0)
-
-        # Sofía elige la mejor opción
-        if dp[i][j] == take_first:
-            moneda_s = arr[i]
-            # Sofía toma la moneda de la izquierda
-            camino_sofia.append(moneda_s)
-            resultado.append(primera_moneda_sophia % (moneda_s))
-            if i + 1 <= j:  # Verificar si hay una elección válida para Mateo
-                if arr[i + 1] > arr[j]:
-                    moneda_m = arr[i + 1]
-                    camino_mateo.append(moneda_m)
-                    resultado.append(primera_moneda_mateo % (moneda_m))
-                    i += 2  # Mateo toma arr[i + 1]
-                else:
-                    moneda_m = arr[j]
-                    camino_mateo.append(moneda_m)
-                    resultado.append(ultima_moneda_mateo % (moneda_m))
-                    i += 1  # Mateo toma arr[j]
-                    j -= 1
-            else:
-                i += 1  # Sofía toma la última moneda
-        else:
-            moneda_s = arr[j]
-            camino_sofia.append(moneda_s)  # Sofía toma la moneda de la derecha
-            resultado.append(ultima_moneda_sophia % (moneda_s))
-            if i <= j - 1:  # Verificar si hay una elección válida para Mateo
-                if arr[i] > arr[j - 1]:
-                    moneda_m = arr[i]
-                    camino_mateo.append(moneda_m)
-                    resultado.append(primera_moneda_mateo % (moneda_m))
-                    i += 1  # Mateo toma arr[i]
-                    j -= 1
-                else:
-                    moneda_m = arr[j - 1]
-                    camino_mateo.append(moneda_m)
-                    resultado.append(ultima_moneda_mateo % (moneda_m))
-                    j -= 2  # Mateo toma arr[j - 1]
-            else:
-                j -= 1  # Sofía toma la última moneda
-
-    return camino_sofia, camino_mateo, resultado
-
-
-def buscar_solucion_iterativa(arr, dp):
-    n = len(arr)
-    # Crear la tabla dp
-    # dp = [[0] * n for _ in range(n)]
-
-    # Casos base
+    # Llenar los casos base (intervalos de longitud 1)
     for i in range(n):
-        dp[i][i] = arr[i]  # Una sola moneda
-    for i in range(n - 1):
-        dp[i][i + 1] = max(arr[i], arr[i + 1])  # Dos monedas
+        optimos[i][i] = arr[i]
 
-    # Llenar la tabla para intervalos mayores
-    for length in range(2, n):  # Longitud del intervalo
-        for i in range(n - length):
-            j = i + length
-            # Calcular dp[i][j]
-            # Si Sofia toma la moneda arr[i]
-            if arr[i + 1] > arr[j]:
-                take_first = arr[i] + dp[i + 2][j]  # Mateo elige arr[i + 1]
+    # Llenar la matriz para intervalos de longitud creciente
+    for longitud in range(2, n + 1):  # Longitud de los subarreglos
+        for i in range(n - longitud + 1):
+            j = i + longitud - 1
+
+            # Si tomamos el primero o el último, minimizamos la ganancia del oponente
+            tomar_primero = arr[i] + min(
+                optimos[i + 2][j] if i + 2 <= j else 0,
+                optimos[i + 1][j - 1] if i + 1 <= j - 1 else 0
+            )
+            tomar_ultimo = arr[j] + min(
+                optimos[i + 1][j - 1] if i + 1 <= j - 1 else 0,
+                optimos[i][j - 2] if i <= j - 2 else 0
+            )
+
+            # Almacenar el mejor resultado en optimos[i][j]
+            optimos[i][j] = max(tomar_primero, tomar_ultimo)
+    
+    return optimos[0][n - 1]   
+
+
+def reconstruir_monedas(arr, optimos):
+    n = len(arr)
+    camino_sophia = []  # Monedas seleccionadas por Sophia
+    camino_mateo = []  # Monedas seleccionadas por Mateo
+    resultado = []  # Lista para guardar los mensajes sobre las decisiones
+    start, end = 0, n - 1
+    turno_sophia = True  # Indica si es el turno de Sophia
+
+    while start <= end:
+        # Determinar si tomar el primer o último elemento
+        tomar_primero = arr[start] + min(
+            optimos[start + 2][end] if start + 2 <= end else 0,
+            optimos[start + 1][end - 1] if start + 1 <= end - 1 else 0
+        )
+        tomar_ultimo = arr[end] + min(
+            optimos[start + 1][end - 1] if start + 1 <= end - 1 else 0,
+            optimos[start][end - 2] if start <= end - 2 else 0
+        )
+
+        # Comparar con el valor en optimos para decidir
+        if optimos[start][end] == tomar_primero:
+            if turno_sophia:
+                camino_sophia.append(arr[start])
+                resultado.append(primera_moneda_sophia % arr[start])
             else:
-                take_first = arr[i] + dp[i + 1][j - 1]  # Mateo elige arr[j]
-
-            # Si Sofia toma la moneda arr[j]
-            if arr[i] > arr[j - 1]:
-                take_last = arr[j] + dp[i + 1][j - 1]  # Mateo elige arr[i]
+                camino_mateo.append(arr[start])
+                resultado.append(primera_moneda_mateo % arr[start])
+            start += 1
+        else:
+            if turno_sophia:
+                camino_sophia.append(arr[end])
+                resultado.append(ultima_moneda_sophia % arr[end])
             else:
-                take_last = arr[j] + dp[i][j - 2]  # Mateo elige arr[j - 1]
+                camino_mateo.append(arr[end])
+                resultado.append(ultima_moneda_mateo % arr[end])
+            end -= 1
 
-            # Sofia maximiza su ganancia
-            dp[i][j] = max(take_first, take_last)
+        # Cambiar el turno
+        turno_sophia = not turno_sophia
 
-    # El resultado está en dp[0][n-1]
-    return dp[0][n - 1]
+    return camino_sophia, camino_mateo, resultado
+
 
 
 # Para ejecutar:
