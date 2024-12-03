@@ -31,9 +31,6 @@ def obtener_cantidad_max(arr):
     n = len(arr)
     optimos = [[0] * n for _ in range(n)]  # Inicializo la matriz con 0's
     solucion = buscar_solucion_iterativa(arr, optimos)
-    # print("Solucion: ", solucion)
-    # for fila in optimos:
-    #     print(fila)
     return reconstruir_monedas(arr, optimos)
 
 
@@ -109,8 +106,7 @@ def reconstruir_monedas(arr, dp):
 
 def buscar_solucion_iterativa(arr, dp):
     n = len(arr)
-    # Crear la tabla dp
-    # dp = [[0] * n for _ in range(n)]
+
 
     # Casos base
     for i in range(n):
@@ -155,7 +151,6 @@ if __name__ == "__main__":
 
     monedas_sofia, monedas_mateo, resultado = obtener_cantidad_max(monedas)
     print("; ".join(resultado))
-    # print("Sofia:", monedas_sofia)
-    # print("Mateo:", monedas_mateo)
+ 
     print("Ganancias Sofia: ", sum(monedas_sofia))
     print("Ganancias Mateo: ", sum(monedas_mateo))
