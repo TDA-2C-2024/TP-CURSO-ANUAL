@@ -45,6 +45,8 @@ Los resultados se guardaran (de forma predeterminada) en la carpeta `results` de
 
 Esto lo podra cambiar a a eleccion dentro del script, modificando las variables `test_data` y `output`.
 
+Aclaracion: no se ejecuta el test 30_25_25.txt debido a que tarda varios minutos.
+
 ### Algoritmo de Aproximacion
 De manera similar a la ejecucion del algoritmo de backtracking, debe poner en consola:
 
