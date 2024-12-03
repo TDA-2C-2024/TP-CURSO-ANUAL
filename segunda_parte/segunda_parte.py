@@ -44,7 +44,7 @@ def reconstruir_monedas(arr, dp):
     camino_mateo = []
     resultado = []
 
-    while i <= j:
+    while i < j:
         # Opción 1: Sofía toma arr[i]
         if arr[i + 1] > arr[j]:
             # Mateo toma arr[i + 1]
@@ -99,6 +99,10 @@ def reconstruir_monedas(arr, dp):
                     j -= 2  # Mateo toma arr[j - 1]
             else:
                 j -= 1  # Sofía toma la última moneda
+    if i == j:
+        moneda_s = arr[i]
+        camino_sofia.append(moneda_s)
+        resultado.append(primera_moneda_sophia % (moneda_s))
 
     return camino_sofia, camino_mateo, resultado
 
