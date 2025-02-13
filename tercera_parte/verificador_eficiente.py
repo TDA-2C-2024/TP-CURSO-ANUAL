@@ -5,12 +5,39 @@ import sys
 def calcular_modulo(pos1, pos2):
     return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)
 
+def son_contiguas(posiciones):
+    if len(posiciones) == 1:
+        return True
+    
+    es_horizontal = False
+    (x0, y0) = posiciones[0]
+    (x1, y1) = posiciones[1]
+
+    if x0 == x1 and y1 == y0 + 1:
+        es_horizontal = True
+    elif y0 == y1 and x1 == x0 + 1:
+        es_horizontal = False
+    else:
+        return False
+
+    for (x2, y2), (x3, y3) in zip(posiciones[1:], posiciones[2:]):
+        if x2 == x3 and y3 == y2 + 1 and es_horizontal:
+            continue
+        elif y2 == y3 and x3 == x2 + 1 and not es_horizontal:
+            continue
+        else:
+            return False
+    return True
+
 def validador_eficiente(filas, columnas, barcos, solucion):
-    # Verifico que los barcos sean los mismos, y su posicion se encuentren dentro del tablero
+    # Verifico que los barcos sean los mismos, su posicion se encuentren dentro del tablero
+    # y que sean contiguos cada una de las posiciones de cada barco
     for nro_barco, posiciones in solucion.items():
         if nro_barco > len(barcos):
             return False
         if len(posiciones) != barcos[nro_barco]:
+            return False
+        if not son_contiguas(posiciones):
             return False
         for pos_fil, pos_col in posiciones:
             if (pos_fil > len(filas) and pos_fil >= 0) or (pos_col > len(columnas) and pos_col >= 0):
