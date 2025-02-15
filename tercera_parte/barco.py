@@ -40,15 +40,21 @@ class Barco:
     def mostrar(self):
         return f"{self.numero}: {' - '.join(map(str, sorted(self.posiciones)))}"
     
-    def excede_demanda(self, filas, columnas, puestos):
-        # Calculo demanda actual
-        demanda_fila = [0] * len(filas) 
-        demanda_columna = [0] * len(columnas) 
+    @staticmethod
+    def calcular_demanda(puestos, filas, columnas):
+        demanda_fila = [0] * len(filas)
+        demanda_columna = [0] * len(columnas)
+
         for barco in puestos:
             for (fila, columna) in barco.posiciones:
                 demanda_fila[fila] += 1
                 demanda_columna[columna] += 1
 
+        return demanda_fila, demanda_columna
+
+    def excede_demanda(self, filas, columnas, puestos):
+        # Calculo demanda actual
+        demanda_fila, demanda_columna = Barco.calcular_demanda(puestos, filas, columnas)
         # Calcula la demanda por el barco
         filas_ocupadas = [0] * len(filas) 
         columnas_ocupadas = [0] * len(columnas) 

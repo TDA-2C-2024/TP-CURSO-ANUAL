@@ -1,85 +1,80 @@
 import sys
 import time
 
-from barco import Barco
 from util import extraer_datos_archivo
+from barco import Barco
 from backtracking import demanda
-from backtracking import demanda_barcos_faltantes
-from backtracking import demanda_por_fila
-from backtracking import tratar_de_ubicar_barco
+from backtracking import colocar_barco
+from backtracking import estan_superpuesto
+from backtracking import estan_adyacentes
 
+def mayores_demandas(filas, columnas):
+    n, m = len(filas), len(columnas)
 
-# Ubica a los barcos tratando de minimizar la demanda incumplida, obteniendo asi un optimo
-def ubicaciones_barco(puestos, filas, columnas, barcos, barco_act, mejores_puestos):
-    # La mejor solucion es usar todos los barcos, ya no sigo buscando
-    if len(mejores_puestos) == len(barcos):
-        return
-
-    demanda_actual = demanda(puestos, filas, columnas)
-    demanda_mejor = demanda(mejores_puestos, filas, columnas)
-    demanda_faltante = demanda_barcos_faltantes(barcos, barco_act)
-
-    # Si con los barcos que tengo puestos (y los que me faltan colocar)
-    # no llego a cubrir la maxima demanda que obtuve, no sigo
-    if demanda_actual + demanda_faltante <= demanda_mejor:
-        return 
+    demandas = {(i, j): filas[i] + columnas[j] for i in range(n) for j in range(m)}
     
-    # Llegue a una mejor solucion, es decir, tengo mayor demanda cumplida que antes 
-    if demanda_actual > demanda_mejor:
-        mejores_puestos[:] = puestos
-    
-    # Me fijo que no me exceda por las dudas
-    if barco_act >= len(barcos):
-        return
-
-    se_pudo_colocar = False
-    for nro_fila, demanda_fila in ((filas)).items():
-        # Salteo las filas con demanda 0 o las que tengan su demanda al maximo
-        if demanda_fila == 0 or demanda_por_fila(nro_fila, puestos) == demanda_fila:
-            continue
-
-        for nro_columna, demanda_columna in ((columnas)).items():
-            while barcos[barco_act][1] > demanda_fila and barcos[barco_act][1] > demanda_columna:
-                barco_act += 1
-                if barco_act == len(barcos):
-                    barco_act -= 1
-                    return
-            if tratar_de_ubicar_barco(puestos, filas, columnas, barcos, barco_act, 'vertical', nro_fila, nro_columna, mejores_puestos):
-                se_pudo_colocar = True
-            # Para barcos de largo 1, basta con colocarlo horizontal o vertical
-            if barcos[barco_act][1] == 1:
-                continue
-            if tratar_de_ubicar_barco(puestos, filas, columnas, barcos, barco_act, 'horizontal', nro_fila, nro_columna, mejores_puestos):
-                se_pudo_colocar = True
-    
-    # Si no pude colocar un barco de cierta longitud, no voy a poder colocar el siguiente si tiene la misma longitud
-    if not se_pudo_colocar and barco_act != len(barcos)-1:
-        barco_act += 1
-        while barcos[barco_act-1][1] == barcos[barco_act][1]:
-            barco_act += 1
-            if barco_act == len(barcos):
-                return
-        barco_act -= 1
+    return dict(sorted(demandas.items(), key=lambda x: x[1], reverse=True))
             
-    # No tengo en cuenta este barco (ya sea si lo pude colocar o n o), asi que sigo con el siguiente
-    ubicaciones_barco(puestos, filas, columnas, barcos, barco_act+1, mejores_puestos)
+# Devuelve si se pudo ubicar un barco
+def se_puede_ubicar(puestos, filas, columnas, barcos, barco_act, direccion, pos_fil, pos_col, celdas):
+    posiciones, se_pudo = colocar_barco(direccion, pos_fil, pos_col, filas, columnas, barcos[barco_act][1])
+    if se_pudo:
+        barco = Barco(barcos[barco_act][0], posiciones, direccion)
+        # Verifico que no se superponga con los demas, o que sea adyacente, o que no exceda demanda
+        if estan_superpuesto(puestos, barco) or estan_adyacentes(puestos, barco) or barco.excede_demanda(filas, columnas, puestos):
+            return False
+        puestos.add(barco)
+        return True
+    else:
+        return False
+
+def actualizar_demanda(puestos, filas, columnas):
+    demanda_filas, demanda_columnas = Barco.calcular_demanda(puestos, filas, columnas)
+    demanda_filas_actual = [a - b for a, b in zip(filas, demanda_filas)]
+    demanda_columas_actual = [a - b for a, b in zip(columnas, demanda_columnas)]
+
+    return mayores_demandas(demanda_filas_actual, demanda_columas_actual)
+
 
 def aproximacion(filas, columnas, barcos):
-    mejores_puestos = [Barco(-1, set(), True)]
-    # Ordeno las filas por mayor demanda
-    dict_filas = {i: demanda for i, demanda in enumerate(filas)}
-    dict_filas_ordenado = dict(sorted(dict_filas.items(), key=lambda item: item[1], reverse=True))
-
-    # Ordeno las columnas por mayor demanda
-    dict_columnas = {i: demanda for i, demanda in enumerate(columnas)}
-    dict_columnas_ordenado = dict(sorted(dict_columnas.items(), key=lambda item: item[1], reverse=True))
+    # Ordeno las celdas de mayor a menor demanda
+    celdas = mayores_demandas(filas, columnas)
 
     # Ordeno los barcos de mayor a menor longitud
     tuplas = [(i, largo) for i, largo in enumerate(barcos)]
     barcos_ordenados = sorted(tuplas, key=lambda x: x[1], reverse=True)
 
-    ubicaciones_barco(set(), dict_filas_ordenado, dict_columnas_ordenado, barcos_ordenados, 0, mejores_puestos)
-    return mejores_puestos, demanda(mejores_puestos, filas, columnas)
+    puestos = set()
+    barco_act = 0
+    demanda_total = sum(filas) + sum(columnas)
+
+    while demanda(puestos, filas, columnas) != demanda_total and barco_act != len(barcos_ordenados):
+        se_pudo_colocar = False
+        for (i, j), _ in celdas.items(): 
+            if se_puede_ubicar(puestos, filas, columnas, barcos_ordenados, barco_act, 'vertical', i, j, celdas):
+                se_pudo_colocar = True
+                break
+            # Para barcos de largo 1, basta con colocarlo horizontal o vertical
+            if not se_pudo_colocar and barcos_ordenados[barco_act][1] == 1:
+                continue
+            if se_puede_ubicar(puestos, filas, columnas, barcos_ordenados, barco_act, 'horizontal', i, j, celdas):
+                se_pudo_colocar = True 
+                break
+        
+        # Si no pude colocar un barco de cierta longitud, no voy a poder colocar el siguiente si tiene la misma longitud
+        if not se_pudo_colocar and barco_act != len(barcos_ordenados)-1:
+            barco_act += 1
+            while barcos_ordenados[barco_act-1][1] == barcos_ordenados[barco_act][1]:
+                barco_act += 1
+                if barco_act == len(barcos_ordenados):
+                    break
+            barco_act -= 1
+        else:
+            celdas = actualizar_demanda(puestos, filas, columnas)
+
+        barco_act += 1
+
+    return list(puestos), demanda(puestos, filas, columnas)
 
 # Para correr el codigo, se debe pasar por parametro un .txt 
 # que tengo el mismo formato que los test de la catedra
