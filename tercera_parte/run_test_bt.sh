@@ -1,7 +1,7 @@
 #!/bin/bash
 
 test_data="test_data_bt"
-output="results/results_${test_data}_bt_probando.txt"
+output="results/results_${test_data}_bt.txt"
 
 > "$output"
 
