@@ -17,10 +17,6 @@ def serializar_txt(nombre_txt):
 
     return valores
 
-# Ec de recurrencia?:
-# Opt(i,j) = max( M[i]+max(Opt(i+2,j),Opt(i+1,j-1)) , M[j]+max(Opt(i+1,j-1), Opt(i,j-2)) )
-
-
 primera_moneda_sophia = "Sophia debe agarrar la primera (%d)"
 ultima_moneda_sophia = "Sophia debe agarrar la ultima (%d)"
 primera_moneda_mateo = "Mateo agarra la primera (%d)"
@@ -114,11 +110,9 @@ def buscar_solucion_iterativa(arr, dp):
     for i in range(n - 1):
         dp[i][i + 1] = max(arr[i], arr[i + 1])  # Dos monedas
 
-    # Llenar la tabla para intervalos mayores
     for length in range(2, n):  # Longitud del intervalo
         for i in range(n - length):
             j = i + length
-            # Calcular dp[i][j]
             # Si Sofia toma la moneda arr[i]
             if arr[i + 1] > arr[j]:
                 take_first = arr[i] + dp[i + 2][j]  # Mateo elige arr[i + 1]
